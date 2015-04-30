@@ -1,0 +1,22 @@
+{
+  "name": "mangatown-manganese",
+  "version": "0.0.1",
+  "description": "Manganese plugin for crawling through mangatown.com",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jfmengels/mangatown-manganese"
+  },
+  "keywords": [
+    "manganese-plugin",
+    "manganese"
+  ],
+  "author": "Jeroen Engels <jfm.engels@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^0.19.0"
+  }
+}
