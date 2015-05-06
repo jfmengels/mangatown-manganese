@@ -22,7 +22,10 @@ function listChaptersFromHtml(html, job) {
             };
         })
         .get()
-        .filter(ranger.isInRangeFilter(job.chapters, 'chapter'));
+        .filter(ranger.isInRangeFilter(job.chapters, 'chapter'))
+        .sort(function(a, b) {
+            return parseFloat(a.chapter) - parseFloat(b.chapter);
+        });
 
     return chapters;
 }

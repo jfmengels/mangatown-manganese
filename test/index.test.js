@@ -64,9 +64,6 @@ describe('listJobs', function() {
                     expect(j).to.have.property('url');
                     expect(j.url).to.match(/http\:\/\/www\.mangatown\.com\/manga\/naruto\/v\d+\/c\d+/);
                     return j.chapter;
-                })
-                .sort(function(a, b) {
-                    return a - b;
                 });
 
             expect(chapters).to.deep.equal([0, 1, 2, 3, 4, 5, 98, 99, 100]);
