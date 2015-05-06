@@ -1,3 +1,7 @@
+var fs = require('fs');
+var url = require('url');
+var path = require("path");
+var async = require('async');
 var ranger = require('number-ranger');
 var request = require('request');
 var cheerio = require('cheerio');
@@ -33,12 +37,57 @@ mangatown.listJobs = function(job, config, cb) {
     });
 };
 
-mangatown.download = function(downloadJob, config, cb) {
+function listPagesFromHtml(html) {
+    var $ = cheerio.load(html);
+    return $('.main .page_select').first().find('select option')
+        .map(function(i, e) {
+            return {
+                number: $(e).text(),
+                url: $(e).val()
+            };
+        })
+        .get();
+}
 
+function getImageUrl(html) {
+    var $ = cheerio.load(html);
+    return $('#viewer img').first().attr('src');
+}
+
+function downloadImageOnPage(downloadJob, page, cb) {
+    request.get(page.url, function(error, response, html) {
+        if (error) {
+            return cb(error);
+        }
+        var imageUrl = getImageUrl(html),
+            imageFileName = path.basename(
+                url.parse(imageUrl).pathname
+            ),
+            outputFile = path.resolve(
+                downloadJob.dest,
+                page.number + path.extname(imageFileName)
+            );
+        request.get(imageUrl)
+            .pipe(fs.createWriteStream(outputFile))
+            .on("error", cb)
+            .on("finish", cb);
+    });
+}
+
+mangatown.downloadChapter = function(downloadJob, config, cb) {
+    request.get(downloadJob.url, function(error, response, html) {
+        if (error) {
+            return cb(error);
+        }
+        var pages = listPagesFromHtml(html);
+        async.eachLimit(pages, config.pageConcurrency, function(page, cb) {
+            downloadImageOnPage(downloadJob, page, cb);
+        }, cb);
+    });
 };
 
 mangatown.seriesNameToUrl = function(job) {
-    return 'http://mangatown.com/manga/' + job.series
+    return 'http://www.mangatown.com/manga/' + job.series
         .toLowerCase()
         .replace(/\s/g, '_')
         .replace(/[^a-z0-9_]/, '');
