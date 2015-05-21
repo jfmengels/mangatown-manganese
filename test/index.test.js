@@ -25,6 +25,16 @@ describe('seriesNameToUrl', function() {
             series: 'The Breaker: New Waves'
         })).to.equal('http://www.mangatown.com/manga/the_breaker_new_waves');
     });
+
+    it('should not have more than one consecutive underscore', function() {
+        expect(mangatown.seriesNameToUrl({
+            series: 'Area D - Inou Ryouiki'
+        })).to.equal('http://www.mangatown.com/manga/area_d_inou_ryouiki');
+
+        expect(mangatown.seriesNameToUrl({
+            series: 'Area D - + - Inou Ryouiki'
+        })).to.equal('http://www.mangatown.com/manga/area_d_inou_ryouiki');
+    });
 });
 
 describe('listJobs', function() {
