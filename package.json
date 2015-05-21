@@ -1,6 +1,6 @@
 {
   "name": "mangatown-manganese",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Manganese plugin for crawling through mangatown.com",
   "main": "index.js",
   "scripts": {
