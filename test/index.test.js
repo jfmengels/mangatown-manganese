@@ -20,6 +20,12 @@ describe('seriesNameToUrl', function() {
         })).to.equal('http://www.mangatown.com/manga/one_piece');
     });
 
+    it('should replace - by underscores', function() {
+        expect(mangatown.seriesNameToUrl({
+            series: 'Sun-Ken Rock'
+        })).to.equal('http://www.mangatown.com/manga/sun_ken_rock');
+    });
+
     it('should remove non-alphanumerical characters', function() {
         expect(mangatown.seriesNameToUrl({
             series: 'The Breaker: New Waves'
