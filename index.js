@@ -1,6 +1,6 @@
 var fs = require('fs');
 var url = require('url');
-var path = require("path");
+var path = require('path');
 var async = require('async');
 var ranger = require('number-ranger');
 var request = require('request');
@@ -45,6 +45,7 @@ function listPagesFromHtml(html) {
     return $('.main .page_select').first().find('select option')
         .map(function(i, e) {
             return {
+                index: i,
                 number: $(e).text(),
                 url: $(e).val()
             };
@@ -57,23 +58,28 @@ function getImageUrl(html) {
     return $('#viewer img').first().attr('src');
 }
 
-function downloadImageOnPage(downloadJob, page, cb) {
+function downloadImageOnPage(config, downloadJob, page, cb) {
     request.get(page.url, function(error, response, html) {
         if (error) {
             return cb(error);
         }
-        var imageUrl = getImageUrl(html),
-            imageFileName = path.basename(
-                url.parse(imageUrl).pathname
-            ),
+        var outputFile;
+        var imageUrl = getImageUrl(html);
+        var imageFileName = path.basename(url.parse(imageUrl).pathname);
+
+        if (typeof config.filename === 'function') {
+            outputFile = config.filename(config, downloadJob, page.index, path.extname(imageFileName));
+        }
+        else {
             outputFile = path.resolve(
                 downloadJob.dest,
                 page.number + path.extname(imageFileName)
             );
+        }
         request.get(imageUrl)
             .pipe(fs.createWriteStream(outputFile))
-            .on("error", cb)
-            .on("finish", cb);
+            .on('error', cb)
+            .on('finish', cb);
     });
 }
 
@@ -84,7 +90,7 @@ mangatown.downloadChapter = function(downloadJob, config, cb) {
         }
         var pages = listPagesFromHtml(html);
         async.eachLimit(pages, config.pageConcurrency, function(page, cb) {
-            downloadImageOnPage(downloadJob, page, cb);
+            downloadImageOnPage(config, downloadJob, page, cb);
         }, cb);
     });
 };
