@@ -8,44 +8,50 @@ var mangatown = require('../');
 var request = require('request');
 
 describe('seriesNameToUrl', function() {
-    it('should make lower case', function() {
+    it('should end with a "/"', function() {
         expect(mangatown.seriesNameToUrl({
             series: 'Naruto'
-        })).to.equal('http://www.mangatown.com/manga/naruto');
+        })).to.equal('http://www.mangatown.com/manga/naruto/');
+    });
+
+    it('should make series name lower case', function() {
+        expect(mangatown.seriesNameToUrl({
+            series: 'Naruto'
+        })).to.equal('http://www.mangatown.com/manga/naruto/');
     });
 
     it('should replace spaces by underscores', function() {
         expect(mangatown.seriesNameToUrl({
             series: 'One Piece'
-        })).to.equal('http://www.mangatown.com/manga/one_piece');
+        })).to.equal('http://www.mangatown.com/manga/one_piece/');
     });
 
     it('should replace - by underscores', function() {
         expect(mangatown.seriesNameToUrl({
             series: 'Sun-Ken Rock'
-        })).to.equal('http://www.mangatown.com/manga/sun_ken_rock');
+        })).to.equal('http://www.mangatown.com/manga/sun_ken_rock/');
     });
 
     it('should replace ":" by underscores', function() {
         expect(mangatown.seriesNameToUrl({
             series: 'Re:Monster'
-        })).to.equal('http://www.mangatown.com/manga/re_monster');
+        })).to.equal('http://www.mangatown.com/manga/re_monster/');
     });
 
     it('should remove non-alphanumerical characters', function() {
         expect(mangatown.seriesNameToUrl({
             series: 'The Breaker: New Waves'
-        })).to.equal('http://www.mangatown.com/manga/the_breaker_new_waves');
+        })).to.equal('http://www.mangatown.com/manga/the_breaker_new_waves/');
     });
 
     it('should not have more than one consecutive underscore', function() {
         expect(mangatown.seriesNameToUrl({
             series: 'Area D - Inou Ryouiki'
-        })).to.equal('http://www.mangatown.com/manga/area_d_inou_ryouiki');
+        })).to.equal('http://www.mangatown.com/manga/area_d_inou_ryouiki/');
 
         expect(mangatown.seriesNameToUrl({
             series: 'Area D - + - Inou Ryouiki'
-        })).to.equal('http://www.mangatown.com/manga/area_d_inou_ryouiki');
+        })).to.equal('http://www.mangatown.com/manga/area_d_inou_ryouiki/');
     });
 });
 
