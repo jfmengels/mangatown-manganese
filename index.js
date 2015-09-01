@@ -40,8 +40,17 @@ mangatown.listJobs = function(job, config, cb) {
     });
 };
 
-function listPagesFromHtml(html) {
-    var $ = cheerio.load(html);
+function checkPageFound($) {
+    if ($('.no-info').length) {
+        return {
+            code: 'cancel',
+            message: 'Could not find chapter'
+        };
+    }
+    return false;
+}
+
+function listPagesFromHtml($) {
     return $('.main .page_select').first().find('select option')
         .map(function(i, e) {
             return {
@@ -88,10 +97,23 @@ mangatown.downloadChapter = function(downloadJob, config, cb) {
         if (error) {
             return cb(error);
         }
-        var pages = listPagesFromHtml(html);
+        var $ = cheerio.load(html);
+        var pageNotFound = checkPageFound($);
+        if (pageNotFound) {
+            return cb(null, pageNotFound);
+        }
+
+        var pages = listPagesFromHtml($);
         async.eachLimit(pages, config.pageConcurrency, function(page, cb) {
             downloadImageOnPage(config, downloadJob, page, cb);
-        }, cb);
+        }, function(error) {
+            if (error) {
+                return cb(error);
+            }
+            return cb(null, {
+                code: 'end'
+            });
+        });
     });
 };
 

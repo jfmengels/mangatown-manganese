@@ -117,12 +117,13 @@ describe('listJobs', function() {
 
 describe('downloadChapter', function() {
     var requestStub, createWriteStreamStub, imageStub;
-    var pages, config, job, pageStubs;
+    var pages, page404, config, job, pageStubs;
 
     before(function(done) {
         async.map([
             './test/fixtures/naruto_chapter662_page1.html',
-            './test/fixtures/naruto_chapter662_page2.html'
+            './test/fixtures/naruto_chapter662_page2.html',
+            './test/fixtures/404.html'
         ], function loadPage(file, cb) {
             fs.readFile(file, cb);
         }, function(error, results) {
@@ -130,6 +131,7 @@ describe('downloadChapter', function() {
                 return done(error);
             }
             pages = results;
+            page404 = pages[2];
             done();
         });
     });
@@ -233,6 +235,27 @@ describe('downloadChapter', function() {
             expect(createWriteStreamStub.getCall(0).args[0]).to.equal(job.dest + '/01.png');
             expect(createWriteStreamStub.getCall(1).args).to.have.length(1);
             expect(createWriteStreamStub.getCall(1).args[0]).to.equal(job.dest + '/02.jpg');
+            done();
+        });
+    });
+
+    it('should callback with end code', function(done) {
+        mangatown.downloadChapter(job, config, function(error, result) {
+            expect(error).to.not.exist;
+            expect(result.code).to.equal('end');
+            done();
+        });
+    });
+
+    it('should callback with cancel code when finding a chapter not found page', function(done) {
+        request.get.restore();
+        requestStub = sinon.stub(request, 'get');
+        requestStub.yields(null, null, page404);
+
+        mangatown.downloadChapter(job, config, function(error, result) {
+            expect(error).to.not.exist;
+            expect(result.code).to.equal('cancel');
+            expect(result.message).to.equal('Could not find chapter');
             done();
         });
     });
