@@ -10,54 +10,54 @@ var request = require('request');
 describe('seriesNameToUrl', function() {
     it('should end with a "/"', function() {
         expect(mangatown.seriesNameToUrl({
-            series: 'Naruto'
-        })).to.equal('http://www.mangatown.com/manga/naruto/');
+            series: 'Wakusei No Samidare'
+        })).to.equal('https://www.mangatown.com/manga/wakusei_no_samidare/');
     });
 
     it('should make series name lower case', function() {
         expect(mangatown.seriesNameToUrl({
-            series: 'Naruto'
-        })).to.equal('http://www.mangatown.com/manga/naruto/');
+            series: 'Wakusei No Samidare'
+        })).to.equal('https://www.mangatown.com/manga/wakusei_no_samidare/');
     });
 
     it('should replace spaces by underscores', function() {
         expect(mangatown.seriesNameToUrl({
             series: 'One Piece'
-        })).to.equal('http://www.mangatown.com/manga/one_piece/');
+        })).to.equal('https://www.mangatown.com/manga/one_piece/');
     });
 
     it('should replace - by underscores', function() {
         expect(mangatown.seriesNameToUrl({
             series: 'Sun-Ken Rock'
-        })).to.equal('http://www.mangatown.com/manga/sun_ken_rock/');
+        })).to.equal('https://www.mangatown.com/manga/sun_ken_rock/');
     });
 
     it('should replace ":" by underscores', function() {
         expect(mangatown.seriesNameToUrl({
             series: 'Re:Monster'
-        })).to.equal('http://www.mangatown.com/manga/re_monster/');
+        })).to.equal('https://www.mangatown.com/manga/re_monster/');
     });
 
     it('should remove non-alphanumerical characters', function() {
         expect(mangatown.seriesNameToUrl({
             series: 'The Breaker: New Waves'
-        })).to.equal('http://www.mangatown.com/manga/the_breaker_new_waves/');
+        })).to.equal('https://www.mangatown.com/manga/the_breaker_new_waves/');
     });
 
     it('should not have more than one consecutive underscore', function() {
         expect(mangatown.seriesNameToUrl({
             series: 'Area D - Inou Ryouiki'
-        })).to.equal('http://www.mangatown.com/manga/area_d_inou_ryouiki/');
+        })).to.equal('https://www.mangatown.com/manga/area_d_inou_ryouiki/');
 
         expect(mangatown.seriesNameToUrl({
             series: 'Area D - + - Inou Ryouiki'
-        })).to.equal('http://www.mangatown.com/manga/area_d_inou_ryouiki/');
+        })).to.equal('https://www.mangatown.com/manga/area_d_inou_ryouiki/');
     });
 });
 
 describe('listJobs', function() {
     before(function(done) {
-        fs.readFile('./test/fixtures/naruto_0-100.html', function(error, html) {
+        fs.readFile('./test/fixtures/wakusei_no_samidare.html', function(error, html) {
             if (error) {
                 return done(error);
             }
@@ -73,35 +73,35 @@ describe('listJobs', function() {
 
     it('should callback with array of jobs of available and in range chapters', function(done) {
         var job = {
-            series: 'Naruto',
+            series: 'Wakusei No Samidare',
             chapters: [{
                 start: 0,
                 end: 5
             }, {
-                start: 98,
-                end: 103
+                start: 63,
+                end: 70
             }]
         };
         mangatown.listJobs(job, {}, function(error, downloadJobs) {
             expect(error).to.not.exist;
-            expect(downloadJobs).to.have.length(9);
+            expect(downloadJobs).to.have.length(10);
             var chapters = downloadJobs
                 .map(function(j) {
-                    expect(j).to.have.property('series', 'Naruto');
+                    expect(j).to.have.property('series', 'Wakusei No Samidare');
                     expect(j).to.have.property('chapter');
                     expect(j).to.have.property('url');
-                    expect(j.url).to.match(/http\:\/\/www\.mangatown\.com\/manga\/naruto\/v\d+\/c\d+/);
+                    expect(j.url).to.match(/^https\:\/\/www\.mangatown\.com\/manga\/wakusei_no_samidare\/v\d+\/c\d+/);
                     return j.chapter;
                 });
 
-            expect(chapters).to.deep.equal([0, 1, 2, 3, 4, 5, 98, 99, 100]);
+            expect(chapters).to.deep.equal([0, 1, 2, 3, 4, 5, 63, 64, 64.5, 65]);
             done();
         });
     });
 
     it('should callback with empty array when no chapters in page', function(done) {
         var job = {
-            series: 'Naruto',
+            series: 'Wakusei No Samidare',
             chapters: [{
                 start: 500,
                 end: +Infinity
@@ -121,8 +121,8 @@ describe('downloadChapter', function() {
 
     before(function(done) {
         async.map([
-            './test/fixtures/naruto_chapter662_page1.html',
-            './test/fixtures/naruto_chapter662_page2.html',
+            './test/fixtures/wakusei_no_samidare_005_page1.html',
+            './test/fixtures/wakusei_no_samidare_005_page2.html',
             './test/fixtures/404.html'
         ], function loadPage(file, cb) {
             fs.readFile(file, cb);
@@ -145,19 +145,19 @@ describe('downloadChapter', function() {
             pageConcurrency: 5
         };
         job = {
-            series: 'Naruto',
-            chapter: 662,
-            url: 'http://www.mangatown.com/manga/naruto/v63/c662/',
-            dest: '/tmp/my/folder/Naruto/Naruto 662'
+            series: 'Wakusei No Samidare',
+            chapter: 5,
+            url: 'https://www.mangatown.com/manga/wakusei_no_samidare/v01/c005/',
+            dest: '/tmp/my/folder/Wakusei No Samidare/Wakusei No Samidare 5'
         };
 
         pageStubs = [
             requestStub
-            .withArgs('http://www.mangatown.com/manga/naruto/v63/c662/', sinon.match.func)
+            .withArgs('https://www.mangatown.com/manga/wakusei_no_samidare/v01/c005/', sinon.match.func)
             .yields(null, null, pages[0]),
 
             requestStub
-            .withArgs('http://www.mangatown.com/manga/naruto/v63/c662/2.html', sinon.match.func)
+            .withArgs('https://www.mangatown.com/manga/wakusei_no_samidare/v01/c005/2.html', sinon.match.func)
             .yields(null, null, pages[1])
         ];
 
@@ -170,9 +170,8 @@ describe('downloadChapter', function() {
         readableStreamMock.push(null);
 
         imageStub = requestStub
-            .withArgs(sinon.match(/http\:\/\/cdn\./))
+            .withArgs(sinon.match(/^https\:\/\/mangatown\.secure\.footprint\.net\//))
             .returns(readableStreamMock);
-
     });
 
     afterEach(function() {
@@ -205,10 +204,10 @@ describe('downloadChapter', function() {
             expect(args[0]).to.equal(config);
             expect(args[1]).to.equal(job);
             expect(args[2]).to.equal(0);
-            expect(args[3]).to.equal('.png');
+            expect(args[3]).to.equal('.jpg');
 
             expect(createWriteStreamStub.callCount).to.equal(2);
-            expect(createWriteStreamStub.getCall(0).args[0]).to.equal('/some/root/folder/' + job.dest + '/1.png');
+            expect(createWriteStreamStub.getCall(0).args[0]).to.equal('/some/root/folder/' + job.dest + '/1.jpg');
             expect(createWriteStreamStub.getCall(1).args[0]).to.equal('/some/root/folder/' + job.dest + '/2.jpg');
             done();
         });
@@ -219,7 +218,7 @@ describe('downloadChapter', function() {
             expect(error).to.not.exist;
             expect(createWriteStreamStub.callCount).to.equal(2);
             expect(createWriteStreamStub.getCall(0).args).to.have.length(1);
-            expect(createWriteStreamStub.getCall(0).args[0]).to.equal(job.dest + '/01.png');
+            expect(createWriteStreamStub.getCall(0).args[0]).to.equal(job.dest + '/01.jpg');
             expect(createWriteStreamStub.getCall(1).args).to.have.length(1);
             expect(createWriteStreamStub.getCall(1).args[0]).to.equal(job.dest + '/02.jpg');
             done();
@@ -232,7 +231,7 @@ describe('downloadChapter', function() {
             expect(error).to.not.exist;
             expect(createWriteStreamStub.callCount).to.equal(2);
             expect(createWriteStreamStub.getCall(0).args).to.have.length(1);
-            expect(createWriteStreamStub.getCall(0).args[0]).to.equal(job.dest + '/01.png');
+            expect(createWriteStreamStub.getCall(0).args[0]).to.equal(job.dest + '/01.jpg');
             expect(createWriteStreamStub.getCall(1).args).to.have.length(1);
             expect(createWriteStreamStub.getCall(1).args[0]).to.equal(job.dest + '/02.jpg');
             done();
