@@ -8,6 +8,8 @@ var cheerio = require('cheerio');
 
 var mangatown = {};
 
+const addHttps = url => url.replace(/^\/\//, 'https://');
+
 function listChaptersFromHtml(html, job) {
     var $ = cheerio.load(html);
     var title = $('h1.title-top').text();
@@ -18,7 +20,7 @@ function listChaptersFromHtml(html, job) {
             return {
                 series: job.series,
                 chapter: chapter,
-                url: $(e).attr('href')
+                url: addHttps($(e).attr('href'))
             };
         })
         .get()
@@ -56,7 +58,7 @@ function listPagesFromHtml($) {
             return {
                 index: i,
                 number: $(e).text(),
-                url: $(e).val()
+                url: addHttps($(e).val())
             };
         })
         .get();
@@ -123,7 +125,7 @@ mangatown.seriesNameToUrl = function(job) {
         .replace(/[\s-:]/g, '_')    // Replace special characters and spaces by '_'
         .replace(/[^a-z0-9_]/g, '') // Remove characters that are not alphanumerical or _
         .replace(/__+/g, '_');      // Remove consecutive _
-    return 'http://www.mangatown.com/manga/' + series + '/';
+    return 'https://www.mangatown.com/manga/' + series + '/';
 };
 
 module.exports = mangatown;
