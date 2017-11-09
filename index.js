@@ -66,7 +66,7 @@ function listPagesFromHtml($) {
 
 function getImageUrl(html) {
     var $ = cheerio.load(html);
-    return $('#viewer img').first().attr('src');
+    return $('#image').attr('src');
 }
 
 function downloadImageOnPage(config, downloadJob, page, cb) {
