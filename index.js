@@ -54,6 +54,9 @@ function checkPageFound($) {
 
 function listPagesFromHtml($) {
     return $('.main .page_select').first().find('select option')
+        .filter(function(i, e) {
+          return $(e).attr('value').indexOf('featured.html') === -1;
+        })
         .map(function(i, e) {
             return {
                 index: i,
@@ -66,7 +69,7 @@ function listPagesFromHtml($) {
 
 function getImageUrl(html) {
     var $ = cheerio.load(html);
-    return $('#image').attr('src');
+    return $('img[width]').attr('src');
 }
 
 function downloadImageOnPage(config, downloadJob, page, cb) {
